@@ -1,4 +1,4 @@
-Date,Publication,Focus_country,Topic,Headline,Link
+Date,Publication,Country,Topic,Headline,Link
 15/05/2026,Guardian,DRC,Epidemic,Ebola outbreak kills 65 people in eastern Democratic Republic of the Congo,https://www.theguardian.com/global-development/2026/may/15/ebola-outbreak-drc-africa-deaths
 17/05/2026,Guardian,"DRC, Uganda",Epidemic,WHO says Ebola outbreak in DRC and Uganda is 'emergency' of international concern,https://www.theguardian.com/world/2026/may/17/who-ebola-outbreak-congo-uganda-global-health-emergency
 17/05/2026,Guardian,Africa,Epidemic,Africa CDC chief says he is in 'panic mode' over Ebola outbreak - video,https://www.theguardian.com/world/video/2026/may/17/africa-cdc-chief-panic-mode-ebola-outbreak-video
@@ -89,7 +89,7 @@ Date,Publication,Focus_country,Topic,Headline,Link
 27/05/2026,Mail,USA,Other,My terrifying Ebola scare in Texas still haunts me. Now experts fear this deadly eye-bleeding virus is heading for the US... and no one is ready: LAURA COLLINS,https://www.dailymail.com/news/article-15852665/ebola-virus-world-cup-fears.html
 27/05/2026,Mail,USA,Travel restrictions,Americans exposed to Ebola face being shipped to Kenya under shock Trump plan,https://www.dailymail.com/health/article-15853499/trump-americans-ebola-kenya-quarantine.html
 28/05/2026,Mail,Austria,Repatriation/Importation,Suspected Ebola case in Austria: patient returning from Uganda admitted to hospital with possible symptoms of the highly infectious virus with no vaccine,https://www.dailymail.com/health/article-15855071/Suspected-Ebola-case-Austria-patient.html
-28/05/2025,Mail,None,Travel restrictions,Countries enact travel bans over Ebola fears as another US airport starts enhanced screenings,https://www.dailymail.com/health/article-15855675/countries-travel-bans-ebola-usa-jfk.html
+28/05/2026,Mail,None,Travel restrictions,Countries enact travel bans over Ebola fears as another US airport starts enhanced screenings,https://www.dailymail.com/health/article-15855675/countries-travel-bans-ebola-usa-jfk.html
 29/05/2026,Mail,Kenya,Protests,Kenya blocks Trump's plan to treat Americans exposed to Ebola… as suspected patients 'escape' from hospital and create widespread 'contamination',https://www.dailymail.com/health/article-15858785/kenya-refuses-trump-ebola-plan.html
 30/05/2026,Mail,Australia,Repatriation/Importation,Relief as Australia survives its first potential Ebola scare,https://www.dailymail.com/news/article-15860649/Australia-Ebola-outbreak-Victoria.html
 31/05/2026,Mail,Brazil,Repatriation/Importation,"Ebola surge has reached Brazil, experts fear as outbreak kills 250 in central Africa and aid struggles to keep up",https://www.dailymail.com/news/article-15862601/Ebola-surge-reached-Brazil-experts-fear.html
@@ -160,7 +160,7 @@ Date,Publication,Focus_country,Topic,Headline,Link
 15/05/2026,Independent,None,Ebola virus,A look at major Ebola outbreaks and when the disease was first identified,https://www.independent.co.uk/news/ebola-congo-world-health-organization-south-africa-cape-town-b2977514.html
 17/05/2026,Independent,"DRC, Uganda",Ebola virus,What you need to know about the latest Ebola outbreak and rare Bundibugyo strain,https://www.independent.co.uk/news/health/ebola-congo-uganda-bundibugyo-virus-b2978137.html
 24/07/2026,Independent,DRC,Epidemic,"Congo's Ebola outbreak is the fastest ever recorded as death toll passes 1,000",https://www.independent.co.uk/news/world/africa/ebola-virus-congo-abuja-nigeria-record-b3021103.html
-20/05/2027,Independent,DRC,Epidemic,The struggle to contain the Ebola outbreak in DRC: 'It's very much not under control',https://www.independent.co.uk/news/world/africa/ebola-outbreak-virus-congo-who-uk-b2980222.html
+20/05/2026,Independent,DRC,Epidemic,The struggle to contain the Ebola outbreak in DRC: 'It's very much not under control',https://www.independent.co.uk/news/world/africa/ebola-outbreak-virus-congo-who-uk-b2980222.html
 22/07/2026,Independent,DRC,Epidemic,"Ebola deaths surge to 1,000 as mistrust keeps people from health clinics",https://www.independent.co.uk/news/world/africa/ebola-congo-virus-uganda-outbreak-b3019523.html
 17/05/2026,Independent,DRC,Epidemic,Global health emergency declared over Ebola outbreak,https://www.independent.co.uk/news/health/who-ebola-outbreak-congo-uganda-b2978081.html
 29/05/2026,Independent,DRC,Risk communication/conspiracies,Urgent aid rushed to Congo amid Ebola outbreak as health workers battle community distrust,https://www.independent.co.uk/news/health/ebola-congo-world-health-organization-medical-aid-b2986021.html
@@ -207,7 +207,7 @@ Date,Publication,Focus_country,Topic,Headline,Link
 20/06/2026,Independent,DRC,Epidemic,Six-month-old baby dies of Ebola as disease rips through Congo orphanage,https://www.independent.co.uk/news/world/africa/ebola-congo-baby-death-orphanage-b2999593.html
 29/05/2026,Independent,DRC,Conflict,WHO chief lands in Congo to address rare Ebola outbreak amid distrust and insecurity,https://www.independent.co.uk/news/congo-tedros-adhanom-ghebreyesus-who-ebola-ebola-virus-b2985811.html
 28/05/2026,Independent,UK,Funding/aid,UK's £21m for Ebola crisis currently just 5% of total sent during last massive outbreak,https://www.independent.co.uk/news/world/africa/uk-ebola-outbreak-support-funding-b2985298.html
-27/05/2025,Independent,USA,Repatriation/Importation,Trump team plans to send Americans exposed to Ebola to Kenya instead of bringing them home for treatment: report,https://www.independent.co.uk/news/world/americas/us-politics/trump-ebola-kenya-treatment-b2984406.html
+27/05/2026,Independent,USA,Repatriation/Importation,Trump team plans to send Americans exposed to Ebola to Kenya instead of bringing them home for treatment: report,https://www.independent.co.uk/news/world/americas/us-politics/trump-ebola-kenya-treatment-b2984406.html
 19/06/2026,Independent,DRC,Other,Ebola making pregnant women avoid hospital - sparking fears of spike in maternal deaths,https://www.independent.co.uk/news/health/congo-ebola-virus-uganda-pregnant-women-mothers-b2998316.html
 14/06/2026,Independent,DRC,Epidemic,"Ebola cases in eastern Congo climb to 782 and deaths reach 181, authorities say",https://www.independent.co.uk/news/ebola-kinshasa-americans-north-kivu-uganda-b2995581.html
 08/06/2026,Independent,DRC,Economic impact/daily life,"Celebrating a wedding amid the Ebola outbreak: No kisses or close contact, but love lives here",https://www.independent.co.uk/news/ebola-congo-mass-catholic-church-b2991687.html
