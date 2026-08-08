@@ -11,6 +11,8 @@ library(shiny)
 library(tidyverse)
 library(bslib)
 library(viridis)
+library(wordcloud)
+library(tidytext)
 
 #find newest data set
 data_files = list.files(path = 'data', pattern = 'ebola-news_\\d+.csv', full.names = T)
@@ -53,27 +55,19 @@ ui <- page_navbar(
                            
                            sidebar = sidebar(open = "always",
                                              shiny::p("Pick options to filter the data and display temporal trends:"),
-                                             
                                              uiOutput("select_timescale"),
-                                             
                                              uiOutput("colour_by"),
-                                             
+                                             conditionalPanel(
+                                               condition = "input.colour_by.length > 0",
+                                               checkboxInput("stagger", "Stagger bars:", value = FALSE, width = NULL)
+                                               ),
                                              shiny::p("Filter by:"),
-                                             
                                              uiOutput("select_pub"),
-                                             
                                              uiOutput("select_country"),
-                                             
                                              uiOutput("select_topic"),
-                                             
                                              uiOutput("select_date"),
-                                             
-                                             
-                                             
                                              ),
                                              
-                                             
-                           
                            plotOutput("plotTrends"),
                            
                            )
@@ -99,9 +93,11 @@ ui <- page_navbar(
                                 
                                 uiOutput("select_date_cloud"),
                                 
+                                #uiOutput("colour_by_cloud"),
+                                
                                 ),
               
-        
+              plotOutput("plot"),
               
             )
             
@@ -157,11 +153,13 @@ server <- function(input, output) {
   output$colour_by <- renderUI({
     selectInput("colour_by", 
                 label = "Colour by:",
-                choices = col_names
+                choices = col_names,
+                selected = NULL,
+                multiple = F
     )
   })
   
-  #simple outputs to base ui inputs on what is in the data
+  #simple outputs to base ui inputs on what is in the data for key words
   output$select_pub_cloud <- renderUI({
     selectInput("publication_cloud", 
                 label = "Publication",
@@ -173,7 +171,7 @@ server <- function(input, output) {
   output$select_country_cloud <- renderUI({
     selectInput("country_cloud", 
                 label = "Country",
-                choices = unique(data$Focus_country),
+                choices = c("DRC", "Uganda", "USA", "UK"),
                 multiple = T
     )
   })
@@ -181,7 +179,7 @@ server <- function(input, output) {
   output$select_topic_cloud <- renderUI({
     selectInput("topic_cloud", 
                 label = "Topic",
-                choices = unique(data$Topic),
+                choices = c("Epidemic", "Funding/aid", "Protests", "Repatriation/importation", "Travel restrictions", "World cup", "Therapeutics/diagnostics"),
                 multiple = T
     )
   })
@@ -189,8 +187,17 @@ server <- function(input, output) {
   output$select_date_cloud <- renderUI({
     selectInput("date_cloud", 
                 label = "Date",
-                choices = format(unique(data$Month), format = "%b %Y"),
+                choices = unique(data$Months_select),
                 multiple = T
+    )
+  })
+  
+  output$colour_by_cloud <- renderUI({
+    selectInput("colour_by_cloud", 
+                label = "Colour by:",
+                choices = col_names,
+                selected = NULL,
+                multiple = F
     )
   })
   
@@ -208,28 +215,64 @@ server <- function(input, output) {
   
   output$plotTrends <- renderPlot({
     
-    if(colour() == ""){
-        # don't colour plot
-        ggplot(data = plot_dat(), aes(x = .data[[input$timescale]])) + geom_bar()
-    } else if(colour() == "Publication"){
+    if(input$colour_by == ""){
+      # don't colour plot
+      g <- ggplot(data = plot_dat(), aes(x = .data[[input$timescale]])) + geom_bar()
+    } else {
       # colour plot
-      ggplot(data = plot_dat(), aes(x = .data[[input$timescale]], fill = Publication)) + geom_bar() + scale_fill_viridis(discrete = T, option = "magma")
+      g <- ggplot(data = plot_dat(), aes(x = .data[[input$timescale]], fill = .data[[input$colour_by]])) + scale_fill_viridis(discrete = T, option = "magma")
     }
-    else if(colour() == "Country"){
-      # colour plot
-      ggplot(data = plot_dat(), aes(x = .data[[input$timescale]], fill = Country)) + geom_bar() + scale_fill_viridis(discrete = T, option = "magma")
-    }
-    else if(colour() == "Topic"){
-      # colour plot
-      ggplot(data = plot_dat(), aes(x = .data[[input$timescale]], fill = Topic)) + geom_bar() + scale_fill_viridis(discrete = T, option = "magma")
-    }
-
-
     
+    if(input$stagger){
+      g <- g + geom_bar(position = position_dodge(preserve = "single")) 
+    } else{
+      g <- g + geom_bar() 
+    }
+    g
+  })
+  
+  #colour_cloud <- reactive({input$colour_by_cloud})
+  
+  cloud_dat <- reactive({
+    df <- data %>%
+      filter((is.null(input$publication_cloud) | Publication %in% input$publication_cloud) &
+               (is.null(input$country_cloud) | Country %in% input$country_cloud) &
+               (is.null(input$topic_cloud) | Topic %in% input$topic_cloud) &
+               (is.null(input$date_cloud) | Months_select %in% input$date_cloud))
+    
+    headlines <- data.frame(text = df$Headline)
+    tidy_headlines <- headlines %>% unnest_tokens(word, text)
+    word_freq <- tidy_headlines |>
+      anti_join(stop_words, by = "word") |>
+      count(word, sort = TRUE)
+    
+    word_freq
+
+  })
+  
+
+  
+  output$plot <- renderPlot({
+    pal <- viridis(10)
+    cloud_dat() %>% 
+      with(wordcloud(word, n, random.order = FALSE, scale = c(10, 1), max.words = 700, col = pal, 
+                     family = "mono", font = 2))
   })
   
   output$wordCloud <- renderPlot({
+    headlines <- data.frame(text = cloud_dat()$Headline)
+    tidy_headlines <- headlines %>% unnest_tokens(word, text)
+    word_freq <- tidy_headlines |>
+      anti_join(stop_words, by = "word") |>
+      count(word, sort = TRUE)
     
+    word_freq = filter(word_freq,n >1)
+    
+    
+    set.seed(42)
+    ggplot(word_freq, aes(label = word, size = n, colour = n)) +
+      geom_text_wordcloud() +
+      scale_size_area(max_size = 20) 
   })
   
 }
