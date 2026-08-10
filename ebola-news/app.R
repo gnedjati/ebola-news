@@ -47,7 +47,28 @@ ui <- page_navbar(
   nav_panel("About",
             shiny::p(tags$h3("About the project")),
             
-            shiny::p("More information about the project")
+            shiny::p("On 15th May 2026, Democratic Republic of Congo announced the country's 17th Ebola outbreak.
+                    The outbreak began in the North East province of Ituri, and has since spread to North Kivu,
+                    South Kivu, Tshopo and Haut Uele provinces."),
+            
+            shiny::p("This outbreak is caused by the less common Bundibugyo strain, for which there is no licensed
+                     vaccine or therapeutics, leading to initial widespread media interest."),
+            
+            shiny::p("This site tracks UK media interest in the outbreak over time, focusing on national news media.
+                     We currently track articles published on the Guardian, Independent, Sun and Daily Mail online sites.
+                     At the moment we do not track paywalled sites including the Times, Telegraph and Financial Times."),
+            
+            shiny::p("Articles are sourced either by searching a news website for the keyword or tag 'ebola' from 15th May 2026, or in cases
+                     where search results are truncated by date, using a site-specific Google search, e.g:"),
+            
+            shiny::p(tags$code("site:www.independent.co.uk ebola",)),
+            
+            shiny::p("and using the custom date range to search only for articles published from 15th May 2026 onwards. We excluded
+                     articles that were not credited to named authors (i.e. articles from newswire services such as Associated Press,
+                     PA Media, etc.), a limited number of paywalled premium content articles and undated video reports. For each article
+                     we extracted the date, publication, country/region mentioned in the article (up to 3), topic, link and headline.
+                     Data were entered into a Google spreadsheet, which was then downloaded as a csv file and imported into R for analysis.")
+                    
             
             
             ),
@@ -58,14 +79,13 @@ ui <- page_navbar(
             layout_sidebar(width = 600,
                            
                            sidebar = sidebar(open = "always",
-                                             shiny::p(tags$h6("Filter articles over time")),
+                                             shiny::p(tags$h6("Explore articles over time")),
                                              uiOutput("select_timescale"),
                                              uiOutput("colour_by"),
                                              conditionalPanel(
                                                condition = "input.colour_by != 'None'",
                                                checkboxInput("stack", "Stack bars", value = TRUE, width = NULL)
                                                ),
-                                             shiny::p("Filter"),
                                              uiOutput("select_pub"),
                                              uiOutput("select_country"),
                                              uiOutput("select_topic"),
@@ -88,7 +108,7 @@ ui <- page_navbar(
               
               
               sidebar = sidebar(open = "always",
-                                shiny::p(tags$h6("Filter headline keywords")),
+                                shiny::p(tags$h6("Explore headline keywords")),
                                 
                                 shiny::tags$small(tags$em("**Note that word size is proportional to the square root of
                                          the word count in the data to preserve readibility of low count words**")),
@@ -197,7 +217,7 @@ server <- function(input, output) {
     } else{
       g <- g + geom_bar() 
     }
-    g <- g + theme_bw(base_size = 15) + ylab("Number of articles")
+    g <- g + theme_bw(base_size = 15) + ylab("Number of articles") + labs(title = "Articles over time")
     g
   })
   
@@ -260,20 +280,28 @@ server <- function(input, output) {
   
   output$plotTrends <- renderPlot({
     req(input$timescale)
-    if('colour_by'%in%names(input) && input$colour_by != ""){
-      # colour plot
-      g <- ggplot(data = plot_dat(), aes(x = .data[[input$timescale]], fill = .data[[input$colour_by]])) + 
-        scale_fill_viridis(discrete = T, option = "magma")
+    if('colour_by'%in%names(input) && input$colour_by != "None"){
+      if(input$colour_by == "Country"){
+        a = interaction(plot_dat()$Country, plot_dat()$Country2, plot_dat()$Country3, sep = " ")
+        names = levels(a)
+        #names = gsub("[.]"," ", names)
+        g <- ggplot(data = plot_dat(), aes(x = .data[[input$timescale]], fill = a)) + 
+          scale_fill_manual("Country/Region", values=as.vector(alphabet2(24)))
+      } else{
+        g <- ggplot(data = plot_dat(), aes(x = .data[[input$timescale]], fill = .data[[input$colour_by]])) + 
+          scale_fill_manual(values=as.vector(alphabet2(24)))
+      }
     } else {
       # don't colour plot
       g <- ggplot(data = plot_dat(), aes(x = .data[[input$timescale]])) #+ geom_bar() it is added later
     }
     
-    if('stagger'%in%names(input) && input$stagger){
-      g <- g + geom_bar(position = position_dodge(preserve = "single")) 
+    if('stack'%in%names(input) && input$stack){
+      g <- g + geom_bar()
     } else{
-      g <- g + geom_bar() 
+      g <- g + geom_bar(position = position_dodge(preserve = "single")) 
     }
+    g <- g + theme_bw(base_size = 15) + ylab("Number of articles")
     g
   })
   
