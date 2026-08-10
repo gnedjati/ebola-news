@@ -214,16 +214,17 @@ server <- function(input, output) {
   })
   
   output$plotTrends <- renderPlot({
-    
-    if(input$colour_by == ""){
-      # don't colour plot
-      g <- ggplot(data = plot_dat(), aes(x = .data[[input$timescale]])) + geom_bar()
-    } else {
+    req(input$timescale)
+    if('colour_by'%in%names(input) && input$colour_by != ""){
       # colour plot
-      g <- ggplot(data = plot_dat(), aes(x = .data[[input$timescale]], fill = .data[[input$colour_by]])) + scale_fill_viridis(discrete = T, option = "magma")
+      g <- ggplot(data = plot_dat(), aes(x = .data[[input$timescale]], fill = .data[[input$colour_by]])) + 
+        scale_fill_viridis(discrete = T, option = "magma")
+    } else {
+      # don't colour plot
+      g <- ggplot(data = plot_dat(), aes(x = .data[[input$timescale]])) #+ geom_bar() it is added later
     }
     
-    if(input$stagger){
+    if('stagger'%in%names(input) && input$stagger){
       g <- g + geom_bar(position = position_dodge(preserve = "single")) 
     } else{
       g <- g + geom_bar() 
