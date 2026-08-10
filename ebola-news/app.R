@@ -237,6 +237,48 @@ server <- function(input, output) {
   })
 
   
+  output$colour_by_cloud <- renderUI({
+    selectInput("colour_by_cloud", 
+                label = "Colour by:",
+                choices = col_names,
+                selected = NULL,
+                multiple = F
+    )
+  })
+  
+  
+  colour <- reactive({input$colour_by})
+  
+  plot_dat <- reactive({
+    df <- data %>%
+      filter((is.null(input$publication) | Publication %in% input$publication) &
+               (is.null(input$country) | Country %in% input$country) &
+               (is.null(input$topic) | Topic %in% input$topic) &
+               (is.null(input$date) | Months_select %in% input$date))
+    df
+  })
+  
+  output$plotTrends <- renderPlot({
+    req(input$timescale)
+    if('colour_by'%in%names(input) && input$colour_by != ""){
+      # colour plot
+      g <- ggplot(data = plot_dat(), aes(x = .data[[input$timescale]], fill = .data[[input$colour_by]])) + 
+        scale_fill_viridis(discrete = T, option = "magma")
+    } else {
+      # don't colour plot
+      g <- ggplot(data = plot_dat(), aes(x = .data[[input$timescale]])) #+ geom_bar() it is added later
+    }
+    
+    if('stagger'%in%names(input) && input$stagger){
+      g <- g + geom_bar(position = position_dodge(preserve = "single")) 
+    } else{
+      g <- g + geom_bar() 
+    }
+    g
+  })
+  
+  #colour_cloud <- reactive({input$colour_by_cloud})
+  
   cloud_dat <- reactive({
     df <- data %>%
       filter((is.null(input$publication_cloud) | Publication %in% input$publication_cloud) &
