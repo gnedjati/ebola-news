@@ -58,7 +58,7 @@ ui <- page_navbar(
             layout_sidebar(width = 600,
                            
                            sidebar = sidebar(open = "always",
-                                             shiny::p("Pick options to filter the data and display temporal trends:"),
+                                             shiny::p(tags$h6("Filter articles over time")),
                                              uiOutput("select_timescale"),
                                              uiOutput("colour_by"),
                                              conditionalPanel(
@@ -70,11 +70,7 @@ ui <- page_navbar(
                                              uiOutput("select_country"),
                                              uiOutput("select_topic"),
                                              uiOutput("select_date"),
-                                             
-                                             selectInput("state", "Choose a state:",
-                                                         list(`East Coast` = c("NY", "NJ", "CT"),
-                                                              `West Coast` = c("WA", "OR", "CA"),
-                                                              `Midwest` = c("MN", "WI", "IA")), multiple = T)
+                                            
                                              ),
                                              
                            plotOutput("plotTrends"),
@@ -185,12 +181,12 @@ server <- function(input, output) {
     
     if(colour() == "None"){
       # don't colour plot
-      g <- ggplot(data = plot_dat(), aes(x = .data[[input$timescale]])) + geom_bar(fill = "grey90")
+      g <- ggplot(data = plot_dat(), aes(x = .data[[input$timescale]])) + geom_bar()
     } else if(colour() == "Country"){
-      a = interaction(plot_dat()$Country, plot_dat()$Country2, plot_dat()$Country3)
+      a = interaction(plot_dat()$Country, plot_dat()$Country2, plot_dat()$Country3, sep = " ")
       names = levels(a)
-      names = gsub("[.]"," ", names)
-      g <- ggplot(data = plot_dat(), aes(x = .data[[input$timescale]], fill = a)) + scale_fill_manual(values=as.vector(alphabet2(24)), labels = names)
+      #names = gsub("[.]"," ", names)
+      g <- ggplot(data = plot_dat(), aes(x = .data[[input$timescale]], fill = a)) + scale_fill_manual("Country/Region", values=as.vector(alphabet2(24)))
     } else {
       # colour plot
       g <- ggplot(data = plot_dat(), aes(x = .data[[input$timescale]], fill = .data[[input$colour_by]])) + scale_fill_manual(values=as.vector(alphabet2(24)))
@@ -201,7 +197,7 @@ server <- function(input, output) {
     } else{
       g <- g + geom_bar() 
     }
-    g <- g + theme_bw(base_size = 12) + ylab("Number of articles")
+    g <- g + theme_bw(base_size = 15) + ylab("Number of articles")
     g
   })
   
@@ -239,17 +235,7 @@ server <- function(input, output) {
                 multiple = T
     )
   })
-  
-  output$colour_by_cloud <- renderUI({
-    selectInput("colour_by_cloud", 
-                label = "Colour by:",
-                choices = col_names,
-                selected = NULL,
-                multiple = F
-    )
-  })
-  
-  #colour_cloud <- reactive({input$colour_by_cloud})
+
   
   cloud_dat <- reactive({
     df <- data %>%
