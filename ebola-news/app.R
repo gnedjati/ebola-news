@@ -198,26 +198,65 @@ server <- function(input, output) {
   })
   
   output$plotTrends <- renderPlot({
-    
-    if(colour() == "None"){
-      # don't colour plot
-      g <- ggplot(data = plot_dat(), aes(x = .data[[input$timescale]])) + geom_bar()
-    } else if(colour() == "Country"){
-      a = interaction(plot_dat()$Country, plot_dat()$Country2, plot_dat()$Country3, sep = " ")
-      names = levels(a)
-      #names = gsub("[.]"," ", names)
-      g <- ggplot(data = plot_dat(), aes(x = .data[[input$timescale]], fill = a)) + scale_fill_manual("Country/Region", values=as.vector(alphabet2(24)))
+    req(input$timescale)
+    if('colour_by'%in%names(input) && input$colour_by != "None"){
+      if(input$colour_by == "Country"){
+        a = interaction(plot_dat()$Country, plot_dat()$Country2, plot_dat()$Country3, sep = " ")
+        names = levels(a)
+        #names = gsub("[.]"," ", names)
+        g <- ggplot(data = plot_dat(), aes(x = .data[[input$timescale]], fill = a)) + 
+          scale_fill_manual("Country/Region", values=as.vector(alphabet2(24)))
+      } else{
+        g <- ggplot(data = plot_dat(), aes(x = .data[[input$timescale]], fill = .data[[input$colour_by]])) + 
+          scale_fill_manual(values=as.vector(alphabet2(24)))
+      }
     } else {
-      # colour plot
-      g <- ggplot(data = plot_dat(), aes(x = .data[[input$timescale]], fill = .data[[input$colour_by]])) + scale_fill_manual(values=as.vector(alphabet2(24)))
+      # don't colour plot
+      g <- ggplot(data = plot_dat(), aes(x = .data[[input$timescale]])) #+ geom_bar() it is added later
     }
     
-    if(!stack()){
-      g <- g + geom_bar(position = position_dodge(preserve = "single")) 
+    if('stack'%in%names(input) && input$stack){
+      g <- g + geom_bar()
     } else{
-      g <- g + geom_bar() 
+      g <- g + geom_bar(position = position_dodge(preserve = "single")) 
     }
-    g <- g + theme_bw(base_size = 15) + ylab("Number of articles") + labs(title = "Articles over time")
+    
+    #make subtitle
+    if(is.null(input$publication)){
+      pubstring = ""
+    } else{
+      pubstring = paste("published in the",paste(input$publication, collapse = " and "))
+    }
+    
+    if(is.null(input$date)){
+      datestring = ""
+    } else{
+      datestring = paste("in",paste(input$date, collapse = " and "))
+    }
+    
+    if(is.null(input$topic)){
+      topicstring = ""
+    } else{
+      topics = str_to_lower(input$topic)
+      topics = case_match(topics,
+                 "other" ~ "other topics",
+                 "ebola virus" ~ "the ebola virus",
+                 "epidemic" ~ "the epidemic",
+                 "world cup" ~ "the World Cup",
+                 "environment" ~ "the environment",
+                 .default = topics)
+      topicstring = paste("about",paste(topics, collapse = " and "))
+    }
+    
+    if(is.null(input$country)){
+      countrystring = ""
+    } else{
+      conj = ifelse(topicstring == "", "about", "in")
+      countrystring = paste(conj,paste(input$country, collapse = " and "))
+    }
+    subtitle = paste(pubstring, datestring, topicstring, countrystring)
+    
+    g <- g + theme_bw(base_size = 15) + ylab("Number of articles") + labs(title = "Articles over time", subtitle = subtitle)
     g
   })
   
@@ -266,44 +305,6 @@ server <- function(input, output) {
     )
   })
   
-  
-  colour <- reactive({input$colour_by})
-  
-  plot_dat <- reactive({
-    df <- data %>%
-      filter((is.null(input$publication) | Publication %in% input$publication) &
-               (is.null(input$country) | Country %in% input$country) &
-               (is.null(input$topic) | Topic %in% input$topic) &
-               (is.null(input$date) | Months_select %in% input$date))
-    df
-  })
-  
-  output$plotTrends <- renderPlot({
-    req(input$timescale)
-    if('colour_by'%in%names(input) && input$colour_by != "None"){
-      if(input$colour_by == "Country"){
-        a = interaction(plot_dat()$Country, plot_dat()$Country2, plot_dat()$Country3, sep = " ")
-        names = levels(a)
-        #names = gsub("[.]"," ", names)
-        g <- ggplot(data = plot_dat(), aes(x = .data[[input$timescale]], fill = a)) + 
-          scale_fill_manual("Country/Region", values=as.vector(alphabet2(24)))
-      } else{
-        g <- ggplot(data = plot_dat(), aes(x = .data[[input$timescale]], fill = .data[[input$colour_by]])) + 
-          scale_fill_manual(values=as.vector(alphabet2(24)))
-      }
-    } else {
-      # don't colour plot
-      g <- ggplot(data = plot_dat(), aes(x = .data[[input$timescale]])) #+ geom_bar() it is added later
-    }
-    
-    if('stack'%in%names(input) && input$stack){
-      g <- g + geom_bar()
-    } else{
-      g <- g + geom_bar(position = position_dodge(preserve = "single")) 
-    }
-    g <- g + theme_bw(base_size = 15) + ylab("Number of articles")
-    g
-  })
   
   #colour_cloud <- reactive({input$colour_by_cloud})
   
