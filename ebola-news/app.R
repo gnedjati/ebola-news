@@ -224,9 +224,9 @@ server <- function(input, output) {
     }
     
     if('stack'%in%names(input) && input$stack){
-      g <- g + geom_bar()
+      g <- g + geom_bar(just = 0)
     } else{
-      g <- g + geom_bar(position = position_dodge(preserve = "single")) 
+      g <- g + geom_bar(position = position_dodge(preserve = "single"), just = 0) 
     }
     
     #make subtitle
@@ -265,6 +265,7 @@ server <- function(input, output) {
     subtitle = paste(pubstring, datestring, topicstring, countrystring)
     
     if('casedata' %in% names(input) && input$casedata){
+      title = "Articles and cases over time"
       if(input$timescale == "Days") {
         coeff = 200
       } else if (input$timescale == "Weeks") {
@@ -272,11 +273,17 @@ server <- function(input, output) {
       } else {
         coeff = 30
       }
-      g <- g + geom_line(data = case_data, aes(x = Days, y = national_cumulative_confirmed_cases/coeff, color = "black")) +
+      if(!input$stack) {
+        coeff = coeff*3
+      }
+      g <- g + geom_line(data = case_data, aes(x = Days, y = national_cumulative_confirmed_cases/coeff), inherit.aes = FALSE) +
         scale_y_continuous(name = "Number of articles", sec.axis = sec_axis(~.*coeff, name = "Cumulative confirmed cases"))
+    } else{
+      g <- g + ylab("Number of articles")
+      title = "Articles over time"
     }
     
-    g <- g + theme_bw(base_size = 15) + labs(title = "Articles over time", subtitle = subtitle)
+    g <- g + theme_bw(base_size = 15) + labs(title = title, subtitle = subtitle)
     g
   })
   
