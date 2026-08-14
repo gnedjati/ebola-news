@@ -14,10 +14,12 @@ library(pals)
 library(wordcloud2)
 library(tidytext)
 
-#find newest data set
-data_files = list.files(path = 'data', pattern = 'ebola-news_\\d+.csv', full.names = T)
-data_dates = sapply(data_files, function(x) file.info(x)$mtime)
-data_path = data_files[which.max(data_dates)]
+##think this is probably causing the deployment issue as when the app is build, the data sets have the same time stamps
+##find newest data  
+# data_files = list.files(path = 'data', pattern = 'ebola-news_\\d+.csv', full.names = T)
+# data_dates = sapply(data_files, function(x) file.info(x)$mtime)
+# data_path = data_files[which.max(data_dates)]
+data_path = file.path("data","ebola-news_090826.csv")
 
 #load_data
 data <- read.csv(data_path)
@@ -29,13 +31,10 @@ col_names = c("None", col_names)
 data$Days = as.Date(data$Date, tryFormats = c("%Y-%m-%d", "%d/%m/%Y"))
 # make another column by month
 data$Months = floor_date(data$Days, unit = "months")
-data$Months_select = format(data$Months, format = "%b %Y")
+data$Months_select = format(data$Months, format = "%B %Y")
 # make another column by week
 data$Weeks = floor_date(data$Days, unit = "weeks")
 
-# empty countries to NA
-#data$Country2[data$Country2 == ""] = NA
-#data$Country3[data$Country3 == ""] = NA
 
 # Define UI for news application with 
 ui <- page_navbar(
