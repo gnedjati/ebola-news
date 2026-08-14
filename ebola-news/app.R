@@ -20,6 +20,8 @@ library(tidytext)
 # data_dates = sapply(data_files, function(x) file.info(x)$mtime)
 # data_path = data_files[which.max(data_dates)]
 data_path = file.path("data","ebola-news_090826.csv")
+#case data
+case_path = file.path("data","cumulative_confirmed_cases__daily.csv")
 
 #case data
 case_path = file.path("data","cumulative_confirmed_cases__daily.csv")
@@ -42,6 +44,7 @@ data$Weeks = floor_date(data$Days, unit = "weeks")
 case_data <- read.csv(case_path)
 # make sure data is in correct date format
 case_data$Days = as.Date(case_data$date, tryFormats = c("%Y-%m-%d", "%d/%m/%Y"))
+
 
 
 # Define UI for news application with 
@@ -207,6 +210,8 @@ server <- function(input, output) {
   
   output$plotTrends <- renderPlot({
     req(input$timescale)
+    
+    
     if('colour_by'%in%names(input) && input$colour_by != "None"){
       if(input$colour_by == "Country"){
         a = interaction(plot_dat()$Country, plot_dat()$Country2, plot_dat()$Country3, sep = " ")
@@ -224,10 +229,12 @@ server <- function(input, output) {
     }
     
     if('stack'%in%names(input) && input$stack){
-      g <- g + geom_bar(just = 0)
+      g <- g + geom_bar(just = 0) + ylab("Number of articles")
     } else{
-      g <- g + geom_bar(position = position_dodge(preserve = "single"), just = 0) 
+      g <- g + geom_bar(just = 0, position = position_dodge(preserve = "single")) + ylab("Number of articles")
+
     }
+
     
     #make subtitle
     if(is.null(input$publication)){
@@ -284,6 +291,7 @@ server <- function(input, output) {
     }
     
     g <- g + theme_bw(base_size = 15) + labs(title = title, subtitle = subtitle)
+
     g
   })
   
