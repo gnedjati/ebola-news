@@ -37,10 +37,6 @@ data$Months_select = format(data$Months, format = "%B %Y")
 # make another column by week
 data$Weeks = floor_date(data$Days, unit = "weeks")
 
-# load case data
-case_data <- read.csv(case_path)
-# make sure data is in correct date format
-case_data$Days = as.Date(case_data$date, tryFormats = c("%Y-%m-%d", "%d/%m/%Y"))
 
 
 # Define UI for news application with 
@@ -87,7 +83,6 @@ ui <- page_navbar(
                            sidebar = sidebar(open = "always",
                                              shiny::p(tags$h6("Explore articles over time")),
                                              uiOutput("select_timescale"),
-                                             checkboxInput("casedata", "Show case data", value = FALSE, width = NULL),
                                              uiOutput("colour_by"),
                                              conditionalPanel(
                                                condition = "input.colour_by != 'None'",
@@ -194,7 +189,6 @@ server <- function(input, output) {
   
   colour <- reactive({input$colour_by})
   stack <- reactive({input$stack})
-  casedata <- reactive({input$casedata})
   
   plot_dat <- reactive({
     df <- data %>%
@@ -268,18 +262,7 @@ server <- function(input, output) {
     subtitle = paste(pubstring, datestring, topicstring, countrystring)
     
     g <- g + theme_bw(base_size = 15) + labs(title = "Articles over time", subtitle = subtitle)
-    
-    if('casedata' %in% names(input) && input$casedata){
-      if(input$timescale == "Days") {
-        coeff = 200
-      } else if (input$timescale == "Weeks") {
-        coeff = 50
-      } else {
-        coeff = 30
-      }
-      g <- g + geom_line(data = case_data, aes(x = Days, y = national_cumulative_confirmed_cases/coeff, color = "black")) +
-        scale_y_continuous(sec.axis = sec_axis(~.*coeff, name = "Cumulative confirmed cases"))
-    }
+
     
     g
   })
