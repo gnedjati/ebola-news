@@ -23,6 +23,9 @@ data_path = file.path("data","ebola-news_090826.csv")
 #case data
 case_path = file.path("data","cumulative_confirmed_cases__daily.csv")
 
+#case data
+case_path = file.path("data","cumulative_confirmed_cases__daily.csv")
+
 #load_data
 data <- read.csv(data_path)
 ind = c(2,3,6)
@@ -36,6 +39,11 @@ data$Months = floor_date(data$Days, unit = "months")
 data$Months_select = format(data$Months, format = "%B %Y")
 # make another column by week
 data$Weeks = floor_date(data$Days, unit = "weeks")
+
+# load case data
+case_data <- read.csv(case_path)
+# make sure data is in correct date format
+case_data$Days = as.Date(case_data$date, tryFormats = c("%Y-%m-%d", "%d/%m/%Y"))
 
 
 
@@ -83,6 +91,7 @@ ui <- page_navbar(
                            sidebar = sidebar(open = "always",
                                              shiny::p(tags$h6("Explore articles over time")),
                                              uiOutput("select_timescale"),
+                                             checkboxInput("casedata", "Show case data", value = FALSE, width = NULL),
                                              uiOutput("colour_by"),
                                              conditionalPanel(
                                                condition = "input.colour_by != 'None'",
@@ -220,9 +229,10 @@ server <- function(input, output) {
     }
     
     if('stack'%in%names(input) && input$stack){
-      g <- g + geom_bar() + ylab("Number of articles")
+      g <- g + geom_bar(just = 0) + ylab("Number of articles")
     } else{
-      g <- g + geom_bar(position = position_dodge(preserve = "single")) + ylab("Number of articles")
+      g <- g + geom_bar(just = 0, position = position_dodge(preserve = "single")) + ylab("Number of articles")
+
     }
 
     
@@ -261,9 +271,27 @@ server <- function(input, output) {
     }
     subtitle = paste(pubstring, datestring, topicstring, countrystring)
     
-    g <- g + theme_bw(base_size = 15) + labs(title = "Articles over time", subtitle = subtitle)
-
+    if('casedata' %in% names(input) && input$casedata){
+      title = "Articles and cases over time"
+      if(input$timescale == "Days") {
+        coeff = 200
+      } else if (input$timescale == "Weeks") {
+        coeff = 50
+      } else {
+        coeff = 30
+      }
+      if(!input$stack) {
+        coeff = coeff*3
+      }
+      g <- g + geom_line(data = case_data, aes(x = Days, y = national_cumulative_confirmed_cases/coeff), inherit.aes = FALSE) +
+        scale_y_continuous(name = "Number of articles", sec.axis = sec_axis(~.*coeff, name = "Cumulative confirmed cases"))
+    } else{
+      g <- g + ylab("Number of articles")
+      title = "Articles over time"
+    }
     
+    g <- g + theme_bw(base_size = 15) + labs(title = title, subtitle = subtitle)
+
     g
   })
   
